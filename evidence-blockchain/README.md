@@ -126,4 +126,4 @@ Frontend runs on http://localhost:3000
 
 ## License
 
-MIT
+Kru
