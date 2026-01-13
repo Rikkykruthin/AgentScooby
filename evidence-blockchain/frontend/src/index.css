@@ -1,0 +1,123 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: #f8fafc;
+  color: #0f172a;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.mono {
+  font-family: 'JetBrains Mono', 'SF Mono', 'Consolas', monospace;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Card styles */
+.card {
+  @apply bg-white rounded-xl border border-slate-200/60 shadow-sm transition-all duration-200;
+}
+
+.card:hover {
+  @apply shadow-md;
+}
+
+/* Input styles */
+input:focus, select:focus, textarea:focus {
+  @apply ring-2 ring-accent/20 border-accent;
+}
+
+/* Button base */
+.btn {
+  @apply px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2;
+}
+
+.btn-primary {
+  @apply bg-primary text-white hover:bg-primary/90;
+}
+
+.btn-secondary {
+  @apply bg-slate-100 text-slate-700 hover:bg-slate-200;
+}
+
+.btn-accent {
+  @apply bg-accent text-white hover:bg-accent/90;
+}
+
+/* Table styles */
+.table-header {
+  @apply bg-slate-50/80 text-xs font-semibold text-slate-500 uppercase tracking-wider;
+}
+
+.table-row {
+  @apply hover:bg-slate-50/50 transition-colors;
+}
+
+/* Badge styles */
+.badge {
+  @apply px-2.5 py-1 text-xs font-medium rounded-full;
+}
+
+.badge-success {
+  @apply bg-emerald-50 text-emerald-700 border border-emerald-200;
+}
+
+.badge-warning {
+  @apply bg-amber-50 text-amber-700 border border-amber-200;
+}
+
+.badge-info {
+  @apply bg-blue-50 text-blue-700 border border-blue-200;
+}
+
+.badge-danger {
+  @apply bg-red-50 text-red-700 border border-red-200;
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Gradient backgrounds */
+.gradient-primary {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+}
+
+.gradient-accent {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+}
