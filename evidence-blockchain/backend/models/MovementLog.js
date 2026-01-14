@@ -35,7 +35,6 @@ const movementLogSchema = new mongoose.Schema({
   purpose: {
     type: String
   },
-  // Blockchain fields
   currentHash: {
     type: String,
     required: true
@@ -44,7 +43,6 @@ const movementLogSchema = new mongoose.Schema({
     type: String,
     default: 'GENESIS'
   },
-  // Digital signature
   signature: {
     type: String,
     required: true
@@ -58,7 +56,6 @@ const movementLogSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Generate log ID
 movementLogSchema.pre('save', async function(next) {
   if (!this.logId) {
     const count = await mongoose.model('MovementLog').countDocuments();

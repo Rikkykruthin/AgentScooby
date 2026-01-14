@@ -8,19 +8,16 @@ const { createAuditLog } = require('../utils/auditLogger');
 const path = require('path');
 const fs = require('fs');
 
-// Helper: Get previous hash
 const getPreviousHash = async () => {
   const lastEvidence = await Evidence.findOne().sort({ createdAt: -1 });
   return lastEvidence ? lastEvidence.currentHash : 'GENESIS';
 };
 
-// Helper: Update Merkle Tree
 const updateMerkleTree = async () => {
   const allEvidence = await Evidence.find().sort({ createdAt: 1 });
   const { tree, root } = buildMerkleTree(allEvidence);
   
   if (root) {
-    // Save new Merkle root
     const lastRoot = await MerkleRoot.findOne().sort({ createdAt: -1 });
     await MerkleRoot.create({
       root,
@@ -28,19 +25,16 @@ const updateMerkleTree = async () => {
       previousRoot: lastRoot ? lastRoot.root : 'GENESIS'
     });
 
-    // Update proofs for all evidence
     for (const ev of allEvidence) {
       const proof = generateProof(tree, ev);
       ev.merkleProof = proof;
-      await ev.save({ validateBeforeSave: false }); // Skip validation for Merkle proof updates
+      await ev.save({ validateBeforeSave: false }); 
     }
   }
 
   return root;
 };
 
-// @desc    Add new evidence
-// @route   POST /api/evidence
 const addEvidence = async (req, res) => {
   try {
     const {
@@ -56,7 +50,6 @@ const addEvidence = async (req, res) => {
       return res.status(401).json({ message: 'User not authenticated' });
     }
 
-    // Get the user's private key for signing
     const user = await User.findById(req.user._id);
     console.log('User found:', user ? 'yes' : 'no', 'has privateKey:', !!user?.privateKey);
     
@@ -68,7 +61,6 @@ const addEvidence = async (req, res) => {
       return res.status(500).json({ message: 'User private key not found' });
     }
 
-    // Process uploaded files
     const attachments = [];
     if (req.files && req.files.length > 0) {
       for (const file of req.files) {
@@ -79,12 +71,11 @@ const addEvidence = async (req, res) => {
           fileSize: file.size,
           mimeType: file.mimetype,
           uploadedAt: new Date(),
-          filePath: file.filename  // Store the unique filename
+          filePath: file.filename  
         });
       }
     }
 
-    // Create data string for hashing and signing
     const signedTimestamp = Date.now();
     const dataString = JSON.stringify({
       name, caseNo, evidenceType, description,
@@ -94,11 +85,9 @@ const addEvidence = async (req, res) => {
       attachments: attachments.map(a => ({ fileName: a.fileName, fileHash: a.fileHash }))
     });
 
-    // Generate hash chain
     const previousHash = await getPreviousHash();
     const currentHash = hashData(dataString + previousHash);
 
-    // Sign the evidence
     let signature;
     try {
       signature = signData(dataString, user.privateKey);
@@ -126,10 +115,8 @@ const addEvidence = async (req, res) => {
       attachments: attachments
     });
 
-    // Update Merkle tree
     await updateMerkleTree();
 
-    // Log audit trail
     await createAuditLog({
       action: 'EVIDENCE_CREATED',
       actor: req.user._id,
@@ -153,8 +140,6 @@ const addEvidence = async (req, res) => {
   }
 };
 
-// @desc    Get all evidence
-// @route   GET /api/evidence
 const getAllEvidence = async (req, res) => {
   try {
     const { search, caseNo } = req.query;
@@ -178,8 +163,6 @@ const getAllEvidence = async (req, res) => {
   }
 };
 
-// @desc    Get single evidence
-// @route   GET /api/evidence/:id
 const getEvidence = async (req, res) => {
   try {
     const evidence = await Evidence.findById(req.params.id)
@@ -196,8 +179,6 @@ const getEvidence = async (req, res) => {
   }
 };
 
-// @desc    Update evidence
-// @route   PUT /api/evidence/:id
 const updateEvidence = async (req, res) => {
   try {
     const evidence = await Evidence.findById(req.params.id);
@@ -207,14 +188,12 @@ const updateEvidence = async (req, res) => {
 
     const user = await User.findById(req.user._id);
 
-    // Update fields
     Object.keys(req.body).forEach(key => {
       if (key !== '_id' && key !== 'currentHash' && key !== 'previousHash') {
         evidence[key] = req.body[key];
       }
     });
 
-    // Create new hash (chain continues)
     const dataString = JSON.stringify({
       ...evidence.toObject(),
       updatedAt: Date.now()
@@ -227,10 +206,8 @@ const updateEvidence = async (req, res) => {
 
     await evidence.save();
 
-    // Update Merkle tree
     await updateMerkleTree();
 
-    // Log audit trail
     await createAuditLog({
       action: 'EVIDENCE_UPDATED',
       actor: req.user._id,
@@ -252,8 +229,6 @@ const updateEvidence = async (req, res) => {
   }
 };
 
-// @desc    Delete evidence
-// @route   DELETE /api/evidence/:id
 const deleteEvidence = async (req, res) => {
   try {
     const evidence = await Evidence.findById(req.params.id);
@@ -269,10 +244,8 @@ const deleteEvidence = async (req, res) => {
 
     await evidence.deleteOne();
 
-    // Update Merkle tree
     await updateMerkleTree();
 
-    // Log audit trail
     await createAuditLog({
       action: 'EVIDENCE_DELETED',
       actor: req.user._id,
@@ -293,8 +266,6 @@ const deleteEvidence = async (req, res) => {
   }
 };
 
-// @desc    Verify evidence integrity
-// @route   GET /api/evidence/:id/verify
 const verifyEvidence = async (req, res) => {
   try {
     const evidence = await Evidence.findById(req.params.id)
@@ -304,7 +275,6 @@ const verifyEvidence = async (req, res) => {
       return res.status(404).json({ message: 'Evidence not found' });
     }
 
-    // Check if evidence has required fields for verification
     if (!evidence.signedTimestamp) {
       return res.json({
         evidenceId: evidence.evidenceId,
@@ -320,7 +290,6 @@ const verifyEvidence = async (req, res) => {
       });
     }
 
-    // Verify digital signature
     const dataString = JSON.stringify({
       name: evidence.name,
       caseNo: evidence.caseNo,
@@ -339,7 +308,6 @@ const verifyEvidence = async (req, res) => {
       evidence.signedBy.publicKey
     );
 
-    // Verify Merkle proof
     const currentRoot = await MerkleRoot.findOne().sort({ createdAt: -1 });
     let merkleValid = false;
     
@@ -347,7 +315,6 @@ const verifyEvidence = async (req, res) => {
       merkleValid = verifyProof(evidence.merkleProof, evidence, currentRoot.root);
     }
 
-    // Verify hash chain
     let hashChainValid = true;
     if (evidence.previousHash !== 'GENESIS') {
       const prevEvidence = await Evidence.findOne({ currentHash: evidence.previousHash });
@@ -370,8 +337,6 @@ const verifyEvidence = async (req, res) => {
   }
 };
 
-// @desc    Get current Merkle root
-// @route   GET /api/evidence/merkle/root
 const getMerkleRoot = async (req, res) => {
   try {
     const root = await MerkleRoot.findOne().sort({ createdAt: -1 });
@@ -381,8 +346,6 @@ const getMerkleRoot = async (req, res) => {
   }
 };
 
-// @desc    Download evidence file
-// @route   GET /api/evidence/:id/download/:fileId
 const downloadFile = async (req, res) => {
   try {
     const evidence = await Evidence.findById(req.params.id);
@@ -401,7 +364,6 @@ const downloadFile = async (req, res) => {
       return res.status(404).json({ message: 'File not found on server' });
     }
 
-    // Verify file integrity
     const currentHash = await calculateFileHash(filePath);
     if (currentHash !== attachment.fileHash) {
       return res.status(500).json({ message: 'File integrity check failed - file may be corrupted' });

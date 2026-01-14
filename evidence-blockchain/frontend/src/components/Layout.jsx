@@ -1,5 +1,6 @@
 import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import { 
   HiOutlineHome, 
   HiOutlineArchiveBox, 
@@ -11,11 +12,13 @@ import {
   HiOutlineDocumentText,
   HiOutlineDocumentMagnifyingGlass,
   HiOutlineFolder,
-  HiOutlineCog6Tooth
+  HiOutlineSun,
+  HiOutlineMoon
 } from 'react-icons/hi2';
 
 const Layout = () => {
   const { user, logout } = useAuth();
+  const { darkMode, toggleDarkMode } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -69,9 +72,9 @@ const Layout = () => {
   };
 
   return (
-    <div className="min-h-screen flex bg-surface">
+    <div className="min-h-screen flex bg-surface dark:bg-slate-900 transition-colors duration-200">
       {/* Sidebar */}
-      <aside className="w-64 bg-primary flex flex-col fixed h-full">
+      <aside className="w-64 bg-primary dark:bg-slate-950 flex flex-col fixed h-full">
         {/* Logo */}
         <div className="p-5 border-b border-white/10">
           <div className="flex items-center gap-3">
@@ -139,23 +142,30 @@ const Layout = () => {
       {/* Main Content */}
       <main className="flex-1 ml-64 min-h-screen">
         {/* Top Bar */}
-        <header className="bg-white border-b border-slate-200/60 sticky top-0 z-10">
+        <header className="bg-white dark:bg-slate-800 border-b border-slate-200/60 dark:border-slate-700 sticky top-0 z-10 transition-colors duration-200">
           <div className="px-8 py-4 flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-semibold text-primary capitalize">
+              <h2 className="text-lg font-semibold text-primary dark:text-white capitalize">
                 {location.pathname.split('/')[1]?.replace(/-/g, ' ') || 'Dashboard'}
               </h2>
             </div>
             <div className="flex items-center gap-4">
-              <span className="text-sm text-muted">
+              <span className="text-sm text-muted dark:text-slate-400">
                 {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
               </span>
+              <button
+                onClick={toggleDarkMode}
+                className="p-2 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
+                title={darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+              >
+                {darkMode ? <HiOutlineSun className="w-5 h-5" /> : <HiOutlineMoon className="w-5 h-5" />}
+              </button>
             </div>
           </div>
         </header>
 
         {/* Page Content */}
-        <div className="p-8 animate-fadeIn">
+        <div className="p-8 animate-fadeIn dark:text-slate-200">
           <Outlet />
         </div>
       </main>

@@ -14,18 +14,15 @@ exports.syncCasesFromEvidence = async (req, res) => {
     for (const caseNo of uniqueCaseNos) {
       if (!caseNo) continue;
       
-      // Check if case already exists
       const existingCase = await Case.findOne({ caseNo });
       if (existingCase) {
         skipped++;
         continue;
       }
 
-      // Get first evidence with this caseNo to get some details
       const sampleEvidence = await Evidence.findOne({ caseNo })
         .populate('collectedBy', 'name');
 
-      // Create case
       await Case.create({
         caseNo,
         title: `Case ${caseNo}`,
@@ -98,7 +95,6 @@ exports.getCaseById = async (req, res) => {
       return res.status(404).json({ message: 'Case not found' });
     }
 
-    // Get lin
     const evidence = await Evidence.find({ caseNo: caseData.caseNo })
       .populate('collectedBy', 'name')
       .sort({ createdAt: -1 });
@@ -114,12 +110,10 @@ exports.getCaseById = async (req, res) => {
   }
 };
 
-// Create case
 exports.createCase = async (req, res) => {
   try {
     const { caseNo, title, description, type, status, priority, assignedOfficer, location, notes, filingDate } = req.body;
 
-    // Check if case number already exists
     const existingCase = await Case.findOne({ caseNo });
     if (existingCase) {
       return res.status(400).json({ message: 'Case number already exists' });
@@ -156,7 +150,6 @@ exports.createCase = async (req, res) => {
   }
 };
 
-// Update case
 exports.updateCase = async (req, res) => {
   try {
     const { title, description, type, status, priority, assignedOfficer, location, notes, closedDate } = req.body;
@@ -200,7 +193,6 @@ exports.updateCase = async (req, res) => {
   }
 };
 
-// Delete case
 exports.deleteCase = async (req, res) => {
   try {
     const caseData = await Case.findById(req.params.id);
@@ -208,7 +200,6 @@ exports.deleteCase = async (req, res) => {
       return res.status(404).json({ message: 'Case not found' });
     }
 
-    // Check if there's evidence linked to this case
     const evidenceCount = await Evidence.countDocuments({ caseNo: caseData.caseNo });
     if (evidenceCount > 0) {
       return res.status(400).json({ 
@@ -235,37 +226,30 @@ exports.deleteCase = async (req, res) => {
   }
 };
 
-// Get case analytics
-exports.getCaseAnalytics = async (req, res) => {
+exports.getCaseAnalytics             = async (req, res) => {
   try {
     const caseData = await Case.findById(req.params.id);
     if (!caseData) {
       return res.status(404).json({ message: 'Case not found' });
     }
 
-    // Get all evidence for this case
     const evidence = await Evidence.find({ caseNo: caseData.caseNo });
     const evidenceIds = evidence.map(e => e._id);
 
-    // Evidence by type
     const evidenceByType = await Evidence.aggregate([
       { $match: { caseNo: caseData.caseNo } },
       { $group: { _id: '$evidenceType', count: { $sum: 1 } } }
     ]);
 
-    // Evidence by status
     const evidenceByStatus = await Evidence.aggregate([
       { $match: { caseNo: caseData.caseNo } },
       { $group: { _id: '$status', count: { $sum: 1 } } }
     ]);
 
-    // Movement logs count
     const movementCount = await MovementLog.countDocuments({ evidenceId: { $in: evidenceIds } });
 
-    // Access logs count
     const accessCount = await AccessLog.countDocuments({ evidenceId: { $in: evidenceIds } });
 
-    // Case duration
     const duration = caseData.closedDate 
       ? Math.ceil((new Date(caseData.closedDate) - new Date(caseData.filingDate)) / (1000 * 60 * 60 * 24))
       : Math.ceil((new Date() - new Date(caseData.filingDate)) / (1000 * 60 * 60 * 24));
@@ -289,7 +273,6 @@ exports.getCaseAnalytics = async (req, res) => {
   }
 };
 
-// Get case timeline
 exports.getCaseTimeline = async (req, res) => {
   try {
     const caseData = await Case.findById(req.params.id);
@@ -299,7 +282,6 @@ exports.getCaseTimeline = async (req, res) => {
 
     const timeline = [];
 
-    // Case created event
     timeline.push({
       type: 'case_created',
       date: caseData.createdAt,
@@ -308,11 +290,9 @@ exports.getCaseTimeline = async (req, res) => {
       icon: 'folder'
     });
 
-    // Get all evidence for this case
     const evidence = await Evidence.find({ caseNo: caseData.caseNo })
       .populate('collectedBy', 'name');
 
-    // Evidence added events
     evidence.forEach(ev => {
       timeline.push({
         type: 'evidence_added',
@@ -326,7 +306,6 @@ exports.getCaseTimeline = async (req, res) => {
 
     const evidenceIds = evidence.map(e => e._id);
 
-    // Movement events
     const movements = await MovementLog.find({ evidenceId: { $in: evidenceIds } })
       .populate('movedBy', 'name')
       .populate('evidenceId', 'evidenceId name');
@@ -341,7 +320,6 @@ exports.getCaseTimeline = async (req, res) => {
       });
     });
 
-    // Case closed event
     if (caseData.closedDate) {
       timeline.push({
         type: 'case_closed',
@@ -352,7 +330,6 @@ exports.getCaseTimeline = async (req, res) => {
       });
     }
 
-    // Sort by date
     timeline.sort((a, b) => new Date(a.date) - new Date(b.date));
 
     res.json(timeline);

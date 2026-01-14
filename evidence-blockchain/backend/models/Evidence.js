@@ -14,18 +14,15 @@ const evidenceSchema = new mongoose.Schema({
     required: true,
     index: true
   },
-  // Evidence Type (Digital, Physical, Biological, etc.)
   evidenceType: {
     type: String,
     enum: ['Digital', 'Physical', 'Biological', 'Documentary', 'Weapon', 'Drug', 'Financial', 'Other'],
     required: true
   },
-  // Detailed description
   description: {
     type: String,
     required: true
   },
-  // Collection details
   collectedBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
@@ -40,31 +37,27 @@ const evidenceSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  // Storage information
   storageLocation: {
     type: String,
     required: true
   },
   storagePointer: {
-    type: String,  // IPFS hash, S3 URL, or physical location code
+    type: String,
     required: true
   },
-  // Chain of custody
   status: {
     type: String,
     enum: ['Collected', 'In Storage', 'In Transit', 'Under Analysis', 'In Court', 'Disposed'],
     default: 'Collected'
   },
-  // File/media attachments
   attachments: [{
     fileName: String,
-    fileHash: String,  // SHA-256 hash of the file
+    fileHash: String,
     fileSize: Number,
     mimeType: String,
-    filePath: String,  // Server filename
+    filePath: String,
     uploadedAt: Date
   }],
-  // Blockchain fields
   currentHash: {
     type: String,
     required: true
@@ -73,7 +66,6 @@ const evidenceSchema = new mongoose.Schema({
     type: String,
     default: 'GENESIS'
   },
-  // Digital signature of the officer who added/modified
   signature: {
     type: String,
     required: true
@@ -83,12 +75,10 @@ const evidenceSchema = new mongoose.Schema({
     ref: 'User',
     required: true
   },
-  // Merkle proof (updated when tree is rebuilt)
   merkleProof: [{
     position: String,
     data: String
   }],
-  // Timestamp used for signing (must match for verification)
   signedTimestamp: {
     type: Number,
     required: true
@@ -96,8 +86,6 @@ const evidenceSchema = new mongoose.Schema({
 }, {
   timestamps: true
 });
-
-// Generate evidence ID
 evidenceSchema.pre('save', async function(next) {
   if (!this.evidenceId) {
     const count = await mongoose.model('Evidence').countDocuments();

@@ -53,7 +53,6 @@ const accessLogSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Generate log ID
 accessLogSchema.pre('save', async function(next) {
   if (!this.logId) {
     const count = await mongoose.model('AccessLog').countDocuments();

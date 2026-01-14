@@ -59,7 +59,6 @@ const caseSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Auto-generate caseId
 caseSchema.pre('save', async function(next) {
   if (!this.caseId) {
     const count = await mongoose.model('Case').countDocuments();

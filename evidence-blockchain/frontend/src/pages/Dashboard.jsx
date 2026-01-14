@@ -112,10 +112,10 @@ const Dashboard = () => {
       {/* Welcome Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-primary">
+          <h1 className="text-2xl font-bold text-primary dark:text-white">
             Good {new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 18 ? 'afternoon' : 'evening'}, {user?.name?.split(' ')[0]}
           </h1>
-          <p className="text-muted mt-1">Here's what's happening with your evidence management</p>
+          <p className="text-muted dark:text-slate-400 mt-1">Here's what's happening with your evidence management</p>
         </div>
         <Link 
           to="/evidence"
@@ -136,8 +136,8 @@ const Dashboard = () => {
           >
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-sm text-muted font-medium">{label}</p>
-                <p className="text-3xl font-bold text-primary mt-2">{value}</p>
+                <p className="text-sm text-muted dark:text-slate-400 font-medium">{label}</p>
+                <p className="text-3xl font-bold text-primary dark:text-white mt-2">{value}</p>
               </div>
               <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${color} flex items-center justify-center shadow-lg`}>
                 <Icon className="w-6 h-6 text-white" />
@@ -160,16 +160,16 @@ const Dashboard = () => {
               <HiOutlineCheckBadge className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h2 className="font-semibold text-primary">Blockchain Status</h2>
-              <p className="text-xs text-muted">Merkle tree verification</p>
+              <h2 className="font-semibold text-primary dark:text-white">Blockchain Status</h2>
+              <p className="text-xs text-muted dark:text-slate-400">Merkle tree verification</p>
             </div>
           </div>
           
           {stats.merkleRoot ? (
             <>
-              <div className="p-3 bg-slate-50 rounded-lg border border-slate-200">
-                <p className="text-[10px] uppercase tracking-wider text-muted font-semibold mb-1">Current Root Hash</p>
-                <p className="mono text-xs text-slate-600 break-all leading-relaxed">
+              <div className="p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-200 dark:border-slate-600">
+                <p className="text-[10px] uppercase tracking-wider text-muted dark:text-slate-400 font-semibold mb-1">Current Root Hash</p>
+                <p className="mono text-xs text-slate-600 dark:text-slate-300 break-all leading-relaxed">
                   {stats.merkleRoot}
                 </p>
               </div>
@@ -188,21 +188,21 @@ const Dashboard = () => {
 
         {/* Recent Evidence */}
         <div className="card lg:col-span-2">
-          <div className="p-5 border-b border-slate-100 flex items-center justify-between">
-            <h2 className="font-semibold text-primary">Recent Evidence</h2>
+          <div className="p-5 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
+            <h2 className="font-semibold text-primary dark:text-white">Recent Evidence</h2>
             <Link to="/evidence" className="text-sm text-accent hover:underline">View all</Link>
           </div>
-          <div className="divide-y divide-slate-100">
+          <div className="divide-y divide-slate-100 dark:divide-slate-700">
             {recentEvidence.length > 0 ? (
               recentEvidence.map((ev) => (
-                <div key={ev._id} className="px-5 py-4 flex items-center justify-between hover:bg-slate-50/50 transition-colors">
+                <div key={ev._id} className="px-5 py-4 flex items-center justify-between hover:bg-slate-50/50 dark:hover:bg-slate-700/50 transition-colors">
                   <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center">
-                      <HiOutlineArchiveBox className="w-5 h-5 text-slate-500" />
+                    <div className="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center">
+                      <HiOutlineArchiveBox className="w-5 h-5 text-slate-500 dark:text-slate-400" />
                     </div>
                     <div>
-                      <p className="font-medium text-primary text-sm">{ev.name}</p>
-                      <p className="text-xs text-muted">
+                      <p className="font-medium text-primary dark:text-white text-sm">{ev.name}</p>
+                      <p className="text-xs text-muted dark:text-slate-400">
                         <span className="mono">{ev.evidenceId}</span> • Case {ev.caseNo}
                       </p>
                     </div>
@@ -224,23 +224,23 @@ const Dashboard = () => {
 
       {/* Quick Actions */}
       <div className="card p-6">
-        <h2 className="font-semibold text-primary mb-4">Quick Actions</h2>
+        <h2 className="font-semibold text-primary dark:text-white mb-4">Quick Actions</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Link to="/cases" className="p-4 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors text-center group">
+          <Link to="/cases" className="p-4 rounded-xl bg-slate-50 dark:bg-slate-700/50 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors text-center group">
             <HiOutlineFolder className="w-8 h-8 mx-auto text-violet-500 mb-2" />
-            <p className="text-sm font-medium text-primary">New Case</p>
+            <p className="text-sm font-medium text-primary dark:text-white">New Case</p>
           </Link>
-          <Link to="/evidence" className="p-4 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors text-center group">
+          <Link to="/evidence" className="p-4 rounded-xl bg-slate-50 dark:bg-slate-700/50 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors text-center group">
             <HiOutlineArchiveBox className="w-8 h-8 mx-auto text-blue-500 mb-2" />
-            <p className="text-sm font-medium text-primary">Add Evidence</p>
+            <p className="text-sm font-medium text-primary dark:text-white">Add Evidence</p>
           </Link>
-          <Link to="/verify" className="p-4 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors text-center group">
+          <Link to="/verify" className="p-4 rounded-xl bg-slate-50 dark:bg-slate-700/50 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors text-center group">
             <HiOutlineShieldCheck className="w-8 h-8 mx-auto text-emerald-500 mb-2" />
-            <p className="text-sm font-medium text-primary">Verify Integrity</p>
+            <p className="text-sm font-medium text-primary dark:text-white">Verify Integrity</p>
           </Link>
-          <Link to="/audit-trail" className="p-4 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors text-center group">
+          <Link to="/audit-trail" className="p-4 rounded-xl bg-slate-50 dark:bg-slate-700/50 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors text-center group">
             <HiOutlineClipboardDocumentList className="w-8 h-8 mx-auto text-amber-500 mb-2" />
-            <p className="text-sm font-medium text-primary">Audit Trail</p>
+            <p className="text-sm font-medium text-primary dark:text-white">Audit Trail</p>
           </Link>
         </div>
       </div>

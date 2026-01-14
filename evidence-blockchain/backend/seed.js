@@ -9,17 +9,14 @@ const seedAdmin = async () => {
     await mongoose.connect(MONGO_URI);
     console.log('Connected to MongoDB');
 
-    // Check if admin exists
     const existingAdmin = await User.findOne({ role: 'admin' });
     if (existingAdmin) {
       console.log('Admin user already exists');
       process.exit(0);
     }
 
-    // Generate key pair for admin
     const { privateKey, publicKey } = generateKeyPair();
 
-    // Create admin user
     const admin = await User.create({
       name: 'Admin User',
       email: 'admin@custain.com',

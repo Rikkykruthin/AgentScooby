@@ -2,13 +2,10 @@ const Evidence = require('../models/Evidence');
 const MovementLog = require('../models/MovementLog');
 const AccessLog = require('../models/AccessLog');
 
-// @desc    Get chain of custody for an evidence
-// @route   GET /api/chain-of-custody/:evidenceId
 const getChainOfCustody = async (req, res) => {
   try {
     const { evidenceId } = req.params;
 
-    // Get evidence
     const evidence = await Evidence.findById(evidenceId)
       .populate('collectedBy', 'name role designation')
       .populate('signedBy', 'name role');
@@ -17,10 +14,8 @@ const getChainOfCustody = async (req, res) => {
       return res.status(404).json({ message: 'Evidence not found' });
     }
 
-    // Build timeline events
     const timeline = [];
 
-    // 1. Evidence Collection Event
     timeline.push({
       type: 'COLLECTION',
       timestamp: evidence.collectionDate || evidence.createdAt,
@@ -38,7 +33,6 @@ const getChainOfCustody = async (req, res) => {
       }
     });
 
-    // 2. Get all movement logs for this evidence
     const movements = await MovementLog.find({ evidence: evidenceId })
       .populate('officerIncharge', 'name role designation')
       .populate('signedBy', 'name')
@@ -65,7 +59,6 @@ const getChainOfCustody = async (req, res) => {
       });
     });
 
-    // 3. Get all access logs for this evidence
     const accesses = await AccessLog.find({ evidence: evidenceId })
       .populate('officer', 'name role designation')
       .sort({ createdAt: 1 });
@@ -86,7 +79,6 @@ const getChainOfCustody = async (req, res) => {
         }
       });
 
-      // Add exit event if exists
       if (access.exitTime) {
         timeline.push({
           type: 'ACCESS_EXIT',
@@ -101,8 +93,6 @@ const getChainOfCustody = async (req, res) => {
       }
     });
 
-    // 4. Check for modifications (by comparing with original)
-    // If evidence has been updated, there will be a new signature
     if (evidence.previousHash && evidence.previousHash !== 'GENESIS') {
       timeline.push({
         type: 'MODIFICATION',
@@ -118,11 +108,9 @@ const getChainOfCustody = async (req, res) => {
         }
       });
     }
-
-    // Sort timeline by timestamp
+    
     timeline.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
 
-    // Add sequence numbers
     timeline.forEach((event, index) => {
       event.sequence = index + 1;
     });

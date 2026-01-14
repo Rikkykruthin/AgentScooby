@@ -12,6 +12,7 @@ A MERN stack application for managing forensic evidence with **Merkle Tree** and
 - **Movement Logs** - Track evidence transport with blockchain verification
 - **Access Logs** - Track officer entry/exit and evidence access
 - **Integrity Verification** - Verify any evidence hasn't been tampered with
+- **Dark Mode** - Toggle between light and dark themes
 
 ## Tech Stack
 
@@ -59,7 +60,7 @@ This creates an admin user:
 npm run dev
 ```
 
-Server runs on http://localhost:5000
+Server runs on http://localhost:5001
 
 ### 5. Install Frontend Dependencies
 
@@ -123,7 +124,3 @@ Frontend runs on http://localhost:3000
 - `POST /api/logs/movement` - Create movement log
 - `GET /api/logs/access` - Access logs
 - `POST /api/logs/access` - Record entry
-
-## License
-
-Kru

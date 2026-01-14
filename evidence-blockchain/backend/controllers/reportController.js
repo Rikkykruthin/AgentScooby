@@ -3,8 +3,7 @@ const Evidence = require('../models/Evidence');
 const Case = require('../models/Case');
 const MovementLog = require('../models/MovementLog');
 const AccessLog = require('../models/AccessLog');
-
-// Colors
+  
 const COLORS = {
   primary: '#1a1a2e',
   secondary: '#16213e',
@@ -20,12 +19,9 @@ const COLORS = {
   border: '#e0e0e0'
 };
 
-// Draw styled header
 const drawHeader = (doc, title, subtitle) => {
-  // Header background
   doc.rect(0, 0, doc.page.width, 100).fill(COLORS.primary);
   
-  // Logo/Title
   doc.fillColor('#ffffff')
      .fontSize(24)
      .font('Helvetica-Bold')
@@ -35,7 +31,6 @@ const drawHeader = (doc, title, subtitle) => {
      .font('Helvetica')
      .text('Evidence Management System Using Blockchain', 50, 55);
   
-  // Document title on right
   doc.fontSize(14)
      .font('Helvetica-Bold')
      .text(title, 300, 35, { align: 'right', width: 200 });
@@ -46,7 +41,6 @@ const drawHeader = (doc, title, subtitle) => {
        .text(subtitle, 300, 55, { align: 'right', width: 200 });
   }
   
-  // Generation date
   doc.fontSize(8)
      .text(`Generated: ${new Date().toLocaleString()}`, 300, 70, { align: 'right', width: 200 });
   
@@ -54,7 +48,6 @@ const drawHeader = (doc, title, subtitle) => {
   doc.y = 120;
 };
 
-// Draw section title
 const drawSectionTitle = (doc, title, icon = '●') => {
   doc.moveDown(0.8);
   doc.fillColor(COLORS.primary)
@@ -66,7 +59,6 @@ const drawSectionTitle = (doc, title, icon = '●') => {
   doc.fillColor('#000000');
 };
 
-// Draw info row
 const drawInfoRow = (doc, label, value, x = 50, width = 500) => {
   const y = doc.y;
   doc.fontSize(9)
@@ -79,7 +71,6 @@ const drawInfoRow = (doc, label, value, x = 50, width = 500) => {
   doc.moveDown(0.4);
 };
 
-// Draw two column info
 const drawTwoColumnInfo = (doc, data) => {
   const startY = doc.y;
   const col1X = 50, col2X = 300;
@@ -104,7 +95,6 @@ const drawTwoColumnInfo = (doc, data) => {
   doc.y = maxY;
 };
 
-// Draw info box
 const drawInfoBox = (doc, data, bgColor = COLORS.lightGray, borderColor = COLORS.border) => {
   const boxHeight = 70;
   const startY = doc.y;
@@ -114,7 +104,6 @@ const drawInfoBox = (doc, data, bgColor = COLORS.lightGray, borderColor = COLORS
   
   doc.y = startY + 12;
   
-  // Title line
   doc.fontSize(14)
      .font('Helvetica-Bold')
      .fillColor(COLORS.primary)
@@ -125,7 +114,6 @@ const drawInfoBox = (doc, data, bgColor = COLORS.lightGray, borderColor = COLORS
      .fillColor(COLORS.gray)
      .text(data.subtitle, 65, doc.y + 5);
   
-  // Right side info
   if (data.rightInfo) {
     let rightY = startY + 12;
     data.rightInfo.forEach(item => {
@@ -143,7 +131,6 @@ const drawInfoBox = (doc, data, bgColor = COLORS.lightGray, borderColor = COLORS
   doc.y = startY + boxHeight + 15;
 };
 
-// Draw table
 const drawTable = (doc, headers, rows, options = {}) => {
   const { colWidths = [], startX = 50 } = options;
   const defaultWidth = (500 - (headers.length - 1) * 5) / headers.length;
@@ -152,10 +139,8 @@ const drawTable = (doc, headers, rows, options = {}) => {
   let currentX = startX;
   const headerY = doc.y;
   
-  // Header background
   doc.rect(startX, headerY - 3, 500, 18).fill(COLORS.primary);
   
-  // Header text
   doc.fillColor('#ffffff').fontSize(8).font('Helvetica-Bold');
   headers.forEach((header, i) => {
     doc.text(header, currentX + 5, headerY, { width: widths[i] - 10 });

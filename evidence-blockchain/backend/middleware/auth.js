@@ -20,7 +20,6 @@ const protect = async (req, res, next) => {
   }
 };
 
-// Role-based authorization
 const authorize = (...roles) => {
   return (req, res, next) => {
     if (!roles.includes(req.user.role)) {

@@ -12,7 +12,6 @@ const {
   syncCasesFromEvidence
 } = require('../controllers/caseController');
 
-// All routes are protected
 router.use(protect);
 
 router.get('/', getCases);

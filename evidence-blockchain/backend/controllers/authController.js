@@ -3,15 +3,12 @@ const jwt = require('jsonwebtoken');
 const { generateKeyPair } = require('../utils/digitalSignature');
 const { createAuditLog } = require('../utils/auditLogger');
 
-// Generate JWT Token
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET || 'evidence_secret_key', {
     expiresIn: '30d'
   });
 };
 
-// @desc    Register new user
-// @route   POST /api/auth/register
 const registerUser = async (req, res) => {
   try {
     const { name, email, password, contact, role, designation } = req.body;
@@ -21,7 +18,7 @@ const registerUser = async (req, res) => {
       return res.status(400).json({ message: 'User already exists' });
     }
 
-    // Generate key pair for digital signatures
+    // key pair for digital signatures
     const { privateKey, publicKey } = generateKeyPair();
 
     const user = await User.create({
@@ -51,8 +48,6 @@ const registerUser = async (req, res) => {
   }
 };
 
-// @desc    Login user
-// @route   POST /api/auth/login
 const loginUser = async (req, res) => {
   try {
     const { email, password, role } = req.body;
@@ -60,7 +55,6 @@ const loginUser = async (req, res) => {
     const user = await User.findOne({ email, role });
 
     if (user && (await user.matchPassword(password))) {
-      // Log successful login
       await createAuditLog({
         action: 'LOGIN',
         actor: user._id,
@@ -80,7 +74,6 @@ const loginUser = async (req, res) => {
         token: generateToken(user._id)
       });
     } else {
-      // Log failed login attempt
       if (user) {
         await createAuditLog({
           action: 'LOGIN',
@@ -98,9 +91,6 @@ const loginUser = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
-// @desc    Get user profile
-// @route   GET /api/auth/profile
 const getProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user._id).select('-password -privateKey');
@@ -110,8 +100,6 @@ const getProfile = async (req, res) => {
   }
 };
 
-// @desc    Update password
-// @route   PUT /api/auth/password
 const updatePassword = async (req, res) => {
   try {
     const user = await User.findById(req.user._id);

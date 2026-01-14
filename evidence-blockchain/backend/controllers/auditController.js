@@ -1,7 +1,5 @@
 const AuditLog = require('../models/AuditLog');
 
-// @desc    Get all audit logs with filters
-// @route   GET /api/audit
 const getAuditLogs = async (req, res) => {
   try {
     const {
@@ -16,7 +14,6 @@ const getAuditLogs = async (req, res) => {
       limit = 50
     } = req.query;
 
-    // Build query
     let query = {};
 
     if (action) {
@@ -35,7 +32,6 @@ const getAuditLogs = async (req, res) => {
       query.status = status;
     }
 
-    // Date range filter
     if (startDate || endDate) {
       query.createdAt = {};
       if (startDate) {
@@ -46,7 +42,6 @@ const getAuditLogs = async (req, res) => {
       }
     }
 
-    // Search in targetName or details
     if (search) {
       query.$or = [
         { targetName: { $regex: search, $options: 'i' } },
@@ -54,13 +49,10 @@ const getAuditLogs = async (req, res) => {
       ];
     }
 
-    // Pagination
     const skip = (page - 1) * limit;
 
-    // Get total count
     const total = await AuditLog.countDocuments(query);
 
-    // Fetch logs
     const logs = await AuditLog.find(query)
       .populate('actor', 'name email role designation')
       .sort({ createdAt: -1 })
@@ -83,8 +75,6 @@ const getAuditLogs = async (req, res) => {
   }
 };
 
-// @desc    Get audit statistics
-// @route   GET /api/audit/stats
 const getAuditStats = async (req, res) => {
   try {
     const { startDate, endDate } = req.query;

@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 
-// Stores the current Merkle root for integrity verification
 const merkleRootSchema = new mongoose.Schema({
   root: {
     type: String,
@@ -14,7 +13,6 @@ const merkleRootSchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   },
-  // Previous root for chain
   previousRoot: {
     type: String,
     default: 'GENESIS'
